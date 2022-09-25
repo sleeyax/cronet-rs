@@ -1,0 +1,12 @@
+[package]
+name = "cronet-rs"
+version = "0.0.1"
+edition = "2021"
+authors = ["Sleeyax"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+
+[build-dependencies]
+bindgen = "0.60.1"
