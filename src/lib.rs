@@ -4,25 +4,20 @@
 
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
+mod buffer;
+
+pub use buffer::*;
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn can_add() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-
-    #[test]
     fn can_create_cronet_buffer() {
-        unsafe {
-            let buffer = Cronet_Buffer_Create();
-            Cronet_Buffer_Destroy(buffer);
-        }
+        let size = 1;
+        let buffer = super::Buffer::new();
+        buffer.initWithAlloc(size);
+        assert!(buffer.size() == size);
+        buffer.destroy();
     }
 }
