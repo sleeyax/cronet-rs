@@ -3,7 +3,7 @@ use std::ffi::c_void;
 use crate::{Cronet_BufferPtr, Cronet_Buffer_Create, Cronet_Buffer_Destroy, Cronet_Buffer_InitWithAlloc, Cronet_Buffer_GetSize, Cronet_Buffer_GetData};
 
 pub struct Buffer {
-  ptr: Cronet_BufferPtr,
+  pub(crate) ptr: Cronet_BufferPtr,
 }
 
 impl Buffer {
