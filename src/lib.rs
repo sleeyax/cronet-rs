@@ -24,11 +24,15 @@ mod tests {
     }
 
     #[test]
-    fn can_create_buffer_callback() {
-        // TODO: find out why the callback isn't actually called...
+    fn can_create_buffer_with_callback() {
+        let buffer = super::Buffer::new();
+        let data = String::from("test");
         let callback = super::BufferCallback::new( |self_, buffer| {
+            println!("Buffer callback called! Buffer size: {}.", buffer.size());
             assert!(buffer.size() >  0);
+            self_.destroy(); // destroys the callback itself.
         });
-        callback.destroy();
+        buffer.initWithDataAndCallback(Box::new(&data), data.len() as u64, callback);
+        buffer.destroy();
     }
 }

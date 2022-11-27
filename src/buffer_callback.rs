@@ -13,8 +13,9 @@ unsafe extern "C" fn cronetBufferCallbackOnDestroy (selfPtr: Cronet_BufferCallba
   lockedMap.remove(&selfPtr);
 }
 
+/// Callback passed to `Buffer::initWithDataAndCallback` that gets invoked when the related `Buffer` is destroyed.
 pub struct BufferCallback {
-  ptr: Cronet_BufferCallbackPtr
+  pub(crate) ptr: Cronet_BufferCallbackPtr
 }
 
 pub type BufferCallbackFn = fn(callback: BufferCallback, buffer: Buffer);
