@@ -36,6 +36,7 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-test
+      - run: wget -P bin https://github.com/sleeyax/cronet-rs/releases/download/test-workflow/libcronet.so
       - run: cargo test --all-features
 
   clippy-analysis:
