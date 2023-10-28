@@ -1,7 +1,7 @@
 use crate::{
     BufferCallback, Cronet_BufferPtr, Cronet_Buffer_Create, Cronet_Buffer_Destroy,
     Cronet_Buffer_GetData, Cronet_Buffer_GetSize, Cronet_Buffer_InitWithAlloc,
-    Cronet_Buffer_InitWithDataAndCallback, Cronet_RawDataPtr,
+    Cronet_Buffer_InitWithDataAndCallback, Cronet_RawDataPtr, Destroy,
 };
 
 pub struct Buffer {
@@ -61,8 +61,10 @@ impl Buffer {
             return Box::from_raw(dataPtr as *mut T);
         }
     }
+}
 
-    pub fn destroy(&self) {
+impl Destroy for Buffer {
+    fn destroy(&self) {
         unsafe {
             Cronet_Buffer_Destroy(self.ptr);
         }
@@ -71,6 +73,8 @@ impl Buffer {
 
 #[cfg(test)]
 mod tests {
+    use crate::Destroy;
+
     #[test]
     fn it_creates_empty_buffer() {
         let buffer = super::Buffer::new();

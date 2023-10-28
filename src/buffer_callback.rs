@@ -7,7 +7,7 @@ use once_cell::sync::Lazy;
 
 use crate::{
     Buffer, Cronet_BufferCallbackPtr, Cronet_BufferCallback_CreateWith,
-    Cronet_BufferCallback_Destroy, Cronet_BufferPtr,
+    Cronet_BufferCallback_Destroy, Cronet_BufferPtr, Destroy,
 };
 
 /// Thread-safe global HashMap to map each native callback pointer to its respective Rust function.
@@ -47,8 +47,10 @@ impl BufferCallback {
             BufferCallback { ptr }
         }
     }
+}
 
-    pub fn destroy(&self) {
+impl Destroy for BufferCallback {
+    fn destroy(&self) {
         unsafe {
             Cronet_BufferCallback_Destroy(self.ptr);
         }

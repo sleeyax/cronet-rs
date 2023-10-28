@@ -1,4 +1,4 @@
-use cronet_rs::Buffer;
+use cronet_rs::{Buffer, Destroy};
 
 fn main() {
     let buffer = Buffer::new();
