@@ -58,7 +58,7 @@ impl Buffer {
     pub fn data<T>(&self) -> Box<T> {
         unsafe {
             let dataPtr: Cronet_RawDataPtr = Cronet_Buffer_GetData(self.ptr);
-            return Box::from_raw(dataPtr as *mut T);
+            Box::from_raw(dataPtr as *mut T)
         }
     }
 }
@@ -68,6 +68,12 @@ impl Destroy for Buffer {
         unsafe {
             Cronet_Buffer_Destroy(self.ptr);
         }
+    }
+}
+
+impl Default for Buffer {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
