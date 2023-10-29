@@ -6,8 +6,10 @@ include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
 mod buffer;
 mod buffer_callback;
+mod date_time;
 mod destroy;
 
 pub use buffer::*;
 pub use buffer_callback::*;
+pub use date_time::*;
 pub use destroy::*;
