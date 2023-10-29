@@ -8,14 +8,14 @@ use crate::{
     Metrics,
 };
 
-pub struct UrlRequestFinishedInfo {
+pub struct RequestFinishedInfo {
     pub(crate) ptr: Cronet_RequestFinishedInfoPtr,
 }
 
-impl UrlRequestFinishedInfo {
+impl RequestFinishedInfo {
     pub fn new() -> Self {
         unsafe {
-            UrlRequestFinishedInfo {
+            RequestFinishedInfo {
                 ptr: Cronet_RequestFinishedInfo_Create(),
             }
         }
@@ -54,7 +54,7 @@ impl UrlRequestFinishedInfo {
 
     /// The objects that the caller has supplied when initiating the request, using [crate::UrlRequestParams::add_annotation].
     ///
-    /// Annotations can be used to associate a [UrlRequestFinishedInfo] with the original request or type of request.
+    /// Annotations can be used to associate a [RequestFinishedInfo] with the original request or type of request.
     pub fn annotations_size(&self) -> u32 {
         unsafe { Cronet_RequestFinishedInfo_annotations_size(self.ptr) }
     }
@@ -67,21 +67,21 @@ impl UrlRequestFinishedInfo {
     }
 
     /// Returns the reason why the request finished.
-    pub fn finished_reason(&self) -> UrlRequestFinishedInfoFinishedReason {
+    pub fn finished_reason(&self) -> RequestFinishedInfoReason {
         unsafe {
             let reason = Cronet_RequestFinishedInfo_finished_reason_get(self.ptr);
             reason.try_into().unwrap()
         }
     }
 
-    pub fn set_finished_reason(&self, reason: UrlRequestFinishedInfoFinishedReason) {
+    pub fn set_finished_reason(&self, reason: RequestFinishedInfoReason) {
         unsafe {
             Cronet_RequestFinishedInfo_finished_reason_set(self.ptr, reason as u32);
         }
     }
 }
 
-impl Destroy for UrlRequestFinishedInfo {
+impl Destroy for RequestFinishedInfo {
     fn destroy(&self) {
         unsafe { Cronet_RequestFinishedInfo_Destroy(self.ptr) }
     }
@@ -89,7 +89,7 @@ impl Destroy for UrlRequestFinishedInfo {
 
 /// Enum representing the reason why the request finished.
 #[derive(Debug, PartialEq)]
-pub enum UrlRequestFinishedInfoFinishedReason {
+pub enum RequestFinishedInfoReason {
     /// The request succeeded.
     Succeeded = 0,
 
@@ -100,14 +100,14 @@ pub enum UrlRequestFinishedInfoFinishedReason {
     Canceled = 2,
 }
 
-impl TryFrom<u32> for UrlRequestFinishedInfoFinishedReason {
+impl TryFrom<u32> for RequestFinishedInfoReason {
     type Error = ();
 
     fn try_from(value: u32) -> Result<Self, Self::Error> {
         match value {
-            0 => Ok(UrlRequestFinishedInfoFinishedReason::Succeeded),
-            1 => Ok(UrlRequestFinishedInfoFinishedReason::Failed),
-            2 => Ok(UrlRequestFinishedInfoFinishedReason::Canceled),
+            0 => Ok(RequestFinishedInfoReason::Succeeded),
+            1 => Ok(RequestFinishedInfoReason::Failed),
+            2 => Ok(RequestFinishedInfoReason::Canceled),
             _ => Err(()),
         }
     }
@@ -115,11 +115,11 @@ impl TryFrom<u32> for UrlRequestFinishedInfoFinishedReason {
 
 #[cfg(test)]
 mod tests {
-    use crate::Destroy;
+    use crate::{Destroy, RequestFinishedInfoReason};
 
     #[test]
     fn it_gets_metrics() {
-        let url_request_finished_info = super::UrlRequestFinishedInfo::new();
+        let url_request_finished_info = super::RequestFinishedInfo::new();
         let metrics = super::Metrics::new();
         metrics.set_received_byte_count(100);
         url_request_finished_info.set_metrics(metrics);
@@ -130,7 +130,7 @@ mod tests {
 
     #[test]
     fn it_gets_annotations() {
-        let url_request_finished_info = super::UrlRequestFinishedInfo::new();
+        let url_request_finished_info = super::RequestFinishedInfo::new();
         let annotation = super::Annotation::default();
         let annotation_ptr = annotation.ptr.clone();
         url_request_finished_info.add_annotation(annotation);
@@ -146,14 +146,10 @@ mod tests {
 
     #[test]
     fn it_gets_finished_reason() {
-        let url_request_finished_info = super::UrlRequestFinishedInfo::new();
-        url_request_finished_info
-            .set_finished_reason(super::UrlRequestFinishedInfoFinishedReason::Canceled);
+        let url_request_finished_info = super::RequestFinishedInfo::new();
+        url_request_finished_info.set_finished_reason(super::RequestFinishedInfoReason::Canceled);
         let finished_reason = url_request_finished_info.finished_reason();
-        assert_eq!(
-            finished_reason,
-            super::UrlRequestFinishedInfoFinishedReason::Canceled
-        );
+        assert_eq!(finished_reason, RequestFinishedInfoReason::Canceled);
         url_request_finished_info.destroy();
     }
 }
