@@ -1,0 +1,73 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'cronet-rs'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=cronet-rs"
+                ],
+                "filter": {
+                    "name": "cronet-rs",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "LD_LIBRARY_PATH": "bin"
+            }
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'buffer'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=buffer",
+                    "--package=cronet-rs"
+                ],
+                "filter": {
+                    "name": "buffer",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "LD_LIBRARY_PATH": "bin"
+            }
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'buffer'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=buffer",
+                    "--package=cronet-rs"
+                ],
+                "filter": {
+                    "name": "buffer",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "LD_LIBRARY_PATH": "bin"
+            }
+        }
+    ]
+}
