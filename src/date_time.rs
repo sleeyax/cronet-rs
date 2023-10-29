@@ -24,7 +24,7 @@ impl DateTime {
         }
     }
 
-    pub fn get_millis(&self) -> i64 {
+    pub fn millis(&self) -> i64 {
         unsafe { Cronet_DateTime_value_get(self.ptr) }
     }
 
@@ -35,7 +35,7 @@ impl DateTime {
     }
 
     pub fn get(&self) -> SystemTime {
-        let milliseconds = self.get_millis();
+        let milliseconds = self.millis();
         let duration = Duration::from_millis(milliseconds as u64);
         UNIX_EPOCH + duration
     }
@@ -70,7 +70,7 @@ mod tests {
         let millis: i64 = 1698591535578;
         let date_time = super::DateTime::new();
         date_time.set_millis(millis);
-        let millis2 = date_time.get_millis();
+        let millis2 = date_time.millis();
         assert_eq!(millis, millis2);
         date_time.destroy();
     }
