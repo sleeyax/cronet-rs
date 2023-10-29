@@ -141,14 +141,14 @@ impl EngineParams {
     }
 
     /// Enable or disable caching of HTTP data and other information like QUIC.
-    pub fn set_http_cache_mode(&self, mode: HTTPCacheMode) {
+    pub fn set_http_cache_mode(&self, mode: HttpCacheMode) {
         unsafe {
             Cronet_EngineParams_http_cache_mode_set(self.ptr, mode as u32);
         }
     }
 
     /// Returns the current HTTP cache mode.
-    pub fn http_cache_mode(&self) -> HTTPCacheMode {
+    pub fn http_cache_mode(&self) -> HttpCacheMode {
         unsafe {
             Cronet_EngineParams_http_cache_max_size_get(self.ptr)
                 .try_into()
@@ -274,7 +274,7 @@ impl Destroy for EngineParams {
 }
 
 #[derive(Debug, PartialEq)]
-pub enum HTTPCacheMode {
+pub enum HttpCacheMode {
     /// Disable HTTP cache.
     /// Some data may still be temporarily stored in memory.
     Disabled = 0,
@@ -284,22 +284,22 @@ pub enum HTTPCacheMode {
 
     /// Enable on-disk cache, excluding HTTP data.
     /// Requires a valid storage path (see`EngineParams.set_storage_path`).
-    DiskNoHTTP = 2,
+    DiskNoHttp = 2,
 
     /// Enable on-disk cache, including HTTP data.
     /// Requires a valid storage path (see `EngineParams.set_storage_path`).
     Disk = 3,
 }
 
-impl TryFrom<i64> for HTTPCacheMode {
+impl TryFrom<i64> for HttpCacheMode {
     type Error = ();
 
     fn try_from(value: i64) -> Result<Self, Self::Error> {
         match value {
-            0 => Ok(HTTPCacheMode::Disabled),
-            1 => Ok(HTTPCacheMode::InMemory),
-            2 => Ok(HTTPCacheMode::DiskNoHTTP),
-            3 => Ok(HTTPCacheMode::Disk),
+            0 => Ok(HttpCacheMode::Disabled),
+            1 => Ok(HttpCacheMode::InMemory),
+            2 => Ok(HttpCacheMode::DiskNoHttp),
+            3 => Ok(HttpCacheMode::Disk),
             _ => Err(()),
         }
     }
@@ -368,10 +368,10 @@ mod tests {
     #[test]
     fn it_sets_http_cache_mode() {
         let engine_params = super::EngineParams::new();
-        engine_params.set_http_cache_mode(super::HTTPCacheMode::Disabled);
+        engine_params.set_http_cache_mode(super::HttpCacheMode::Disabled);
         assert_eq!(
             engine_params.http_cache_mode(),
-            super::HTTPCacheMode::Disabled
+            super::HttpCacheMode::Disabled
         );
         engine_params.destroy();
     }
