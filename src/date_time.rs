@@ -5,6 +5,7 @@ use crate::{
     Cronet_DateTime_value_set, Destroy,
 };
 
+#[derive(Copy, Clone)]
 pub struct DateTime {
     pub(crate) ptr: Cronet_DateTimePtr,
 }
