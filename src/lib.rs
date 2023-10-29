@@ -8,8 +8,14 @@ mod buffer;
 mod buffer_callback;
 mod date_time;
 mod destroy;
+mod engine_params;
+mod public_key_pins;
+mod quic_hint;
 
 pub use buffer::*;
 pub use buffer_callback::*;
 pub use date_time::*;
 pub use destroy::*;
+pub use engine_params::*;
+pub use public_key_pins::*;
+pub use quic_hint::*;
