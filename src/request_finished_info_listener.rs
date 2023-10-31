@@ -9,7 +9,7 @@ use crate::{
 };
 
 static mut REQUEST_FINISHED_INFO_LISTENER_CALLBACKS: Lazy<
-    CronetCallbacks<Cronet_RequestFinishedInfoListenerPtr, OnRequestFinishedFunc>,
+    CronetCallbacks<Cronet_RequestFinishedInfoListenerPtr, OnRequestFinishedFn>,
 > = Lazy::new(|| CronetCallbacks::new());
 
 #[no_mangle]
@@ -39,7 +39,7 @@ pub struct RequestFinishedInfoListener {
 }
 
 impl RequestFinishedInfoListener {
-    pub fn new(on_request_finished: OnRequestFinishedFunc) -> Self {
+    pub fn new(on_request_finished: OnRequestFinishedFn) -> Self {
         unsafe {
             let ptr = Cronet_RequestFinishedInfoListener_CreateWith(Some(cronetOnRequestFinished));
             REQUEST_FINISHED_INFO_LISTENER_CALLBACKS
@@ -66,7 +66,7 @@ impl Destroy for RequestFinishedInfoListener {
     }
 }
 
-pub type OnRequestFinishedFunc = fn(
+pub type OnRequestFinishedFn = fn(
     listener: RequestFinishedInfoListener,
     request_info: RequestFinishedInfo,
     response_info: UrlResponseInfo,
