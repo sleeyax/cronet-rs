@@ -63,6 +63,7 @@ unsafe extern "C" fn cronetUploadDataSinkOnRewindError(
     }
 }
 
+#[derive(Clone, Copy)]
 pub struct UploadDataSinkCallbacks {
     pub on_read_succeeded: OnReadSucceededFn,
     pub on_read_error: OnReadErrorFn,
