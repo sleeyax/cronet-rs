@@ -149,17 +149,6 @@ impl Destroy for UploadDataSink {
     }
 }
 
-impl Default for UploadDataSink {
-    /// Creates a new [UploadDataSink] without any callbacks.
-    fn default() -> Self {
-        unsafe {
-            Self {
-                ptr: Cronet_UploadDataSink_Create(),
-            }
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use crate::{Destroy, UploadDataSink, UploadDataSinkCallbacks};
