@@ -24,7 +24,7 @@ Then, follow the steps to build the project:
 Maintenance of this project is made possible by all the contributors and sponsors.
 If you'd like to sponsor this project and have your avatar or company logo appear below click [here](https://github.com/sponsors/sleeyax). 💖
 
-<!-- sponsors --><!-- sponsors -->
+<!-- sponsors --><a href="https://github.com/secretkeysio"><img src="https://github.com/secretkeysio.png" width="60px" alt="SecretKeys" /></a><!-- sponsors -->
 
 ## Related projects
 
