@@ -19,6 +19,13 @@ Then, follow the steps to build the project:
 2. Place all `.h` header files in `src` and all binaries (`.so`, `.dll`, `.dylib`) in `bin`.
 3. Run `cargo build`. This should trigger `bindgen` to (re)generate the bindings.
 
+## Sponsors
+
+Maintenance of this project is made possible by all the contributors and sponsors.
+If you'd like to sponsor this project and have your avatar or company logo appear below click [here](https://github.com/sponsors/sleeyax). 💖
+
+<!-- sponsors --><!-- sponsors -->
+
 ## Related projects
 
 Other projects that are related to this project and might interest you:
