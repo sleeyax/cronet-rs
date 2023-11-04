@@ -10,8 +10,7 @@ static mut RUNNABLE_CALLBACKS: Lazy<CronetCallbacks<Cronet_RunnablePtr, Runnable
 
 #[no_mangle]
 unsafe extern "C" fn cronetRunnableOnRun(selfPtr: Cronet_RunnablePtr) {
-    let mut lockedMap = RUNNABLE_CALLBACKS.map().lock().unwrap();
-    lockedMap.remove(&selfPtr);
+    let lockedMap = RUNNABLE_CALLBACKS.map().lock().unwrap();
     if let Some(callback) = lockedMap.get(&selfPtr) {
         callback(Runnable { ptr: selfPtr });
     }
@@ -48,7 +47,11 @@ impl Runnable {
 
 impl Destroy for Runnable {
     fn destroy(&self) {
-        unsafe { Cronet_Runnable_Destroy(self.ptr) }
+        unsafe {
+            let mut lockedMap = RUNNABLE_CALLBACKS.map().lock().unwrap();
+            lockedMap.remove(&self.ptr);
+            Cronet_Runnable_Destroy(self.ptr)
+        }
     }
 }
 

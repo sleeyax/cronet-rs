@@ -19,11 +19,10 @@ unsafe extern "C" fn cronetOnRequestFinished(
     response_info: Cronet_UrlResponseInfoPtr,
     error: Cronet_ErrorPtr,
 ) {
-    let mut lockedMap = REQUEST_FINISHED_INFO_LISTENER_CALLBACKS
+    let lockedMap = REQUEST_FINISHED_INFO_LISTENER_CALLBACKS
         .map()
         .lock()
         .unwrap();
-    lockedMap.remove(&selfPtr);
     if let Some(callback) = lockedMap.get(&selfPtr) {
         callback(
             RequestFinishedInfoListener { ptr: selfPtr },
@@ -61,6 +60,11 @@ impl RequestFinishedInfoListener {
 impl Destroy for RequestFinishedInfoListener {
     fn destroy(&self) {
         unsafe {
+            let mut lockedMap = REQUEST_FINISHED_INFO_LISTENER_CALLBACKS
+                .map()
+                .lock()
+                .unwrap();
+            lockedMap.remove(&self.ptr);
             Cronet_RequestFinishedInfoListener_Destroy(self.ptr);
         }
     }

@@ -13,8 +13,7 @@ unsafe extern "C" fn cronetExecutorOnExecute(
     selfPtr: Cronet_ExecutorPtr,
     runnablePtr: Cronet_RunnablePtr,
 ) {
-    let mut lockedMap = EXECUTOR_CALLBACKS.map().lock().unwrap();
-    lockedMap.remove(&selfPtr);
+    let lockedMap = EXECUTOR_CALLBACKS.map().lock().unwrap();
     if let Some(callback) = lockedMap.get(&selfPtr) {
         callback(Executor { ptr: selfPtr }, Runnable { ptr: runnablePtr });
     }
@@ -49,7 +48,11 @@ impl Executor {
 
 impl Destroy for Executor {
     fn destroy(&self) {
-        unsafe { Cronet_Executor_Destroy(self.ptr) }
+        unsafe {
+            let mut lockedMap = EXECUTOR_CALLBACKS.map().lock().unwrap();
+            lockedMap.remove(&self.ptr);
+            Cronet_Executor_Destroy(self.ptr)
+        }
     }
 }
 
