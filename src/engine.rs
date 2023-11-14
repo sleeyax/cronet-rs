@@ -22,9 +22,12 @@ impl Engine {
 
     /// Start the Engine with the given [EngineParams].
     /// The engine must be started once and only once before other methods can be used.
+    ///
+    /// Please note that the [EngineParams] will be destroyed after the engine is started.
     pub fn start(&self, params: EngineParams) -> EngineResult {
         unsafe {
             let result = Cronet_Engine_StartWithParams(self.ptr, params.ptr);
+            params.destroy();
             EngineResult::try_from(result).unwrap()
         }
     }

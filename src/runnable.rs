@@ -55,6 +55,8 @@ impl Destroy for Runnable {
     }
 }
 
+unsafe impl Send for Runnable {}
+
 #[cfg(test)]
 mod tests {
     use crate::Destroy;
