@@ -3,7 +3,7 @@ use std::ffi::{CStr, CString};
 use once_cell::sync::Lazy;
 
 use crate::{
-    state::CronetCallbacks, Cronet_String, Cronet_UploadDataSinkPtr, Cronet_UploadDataSink_Create,
+    state::CronetCallbacks, Cronet_String, Cronet_UploadDataSinkPtr,
     Cronet_UploadDataSink_CreateWith, Cronet_UploadDataSink_Destroy,
     Cronet_UploadDataSink_OnReadError, Cronet_UploadDataSink_OnReadSucceeded,
     Cronet_UploadDataSink_OnRewindError, Cronet_UploadDataSink_OnRewindSucceeded, Destroy,
