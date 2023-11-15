@@ -1,6 +1,9 @@
 use std::ffi::{CStr, CString};
 
+use http::{request::Parts, Request};
+
 use crate::{
+    client::{Body, BodyUploadDataProvider},
     Annotation, Cronet_UrlRequestParamsPtr, Cronet_UrlRequestParams_Create,
     Cronet_UrlRequestParams_Destroy, Cronet_UrlRequestParams_REQUEST_PRIORITY,
     Cronet_UrlRequestParams_allow_direct_executor_get,
@@ -60,9 +63,11 @@ impl UrlRequestParams {
     }
 
     /// Add an HTTP header to this request.
+    /// Note that the header you provide is destroyed after it has been added to the request.
     pub fn add_header(&self, header: HttpHeader) {
         unsafe {
             Cronet_UrlRequestParams_request_headers_add(self.ptr, header.ptr);
+            header.destroy();
         }
     }
 
@@ -128,7 +133,7 @@ impl UrlRequestParams {
     }
 
     /// Upload data provider executor that will be used to invoke [UploadDataProvider].
-    pub fn set_upload_data_executor(&self, executor: Executor) {
+    pub fn set_upload_data_executor(&self, executor: &Executor) {
         unsafe { Cronet_UrlRequestParams_upload_data_provider_executor_set(self.ptr, executor.ptr) }
     }
 
@@ -265,6 +270,38 @@ impl Destroy for UrlRequestParams {
     }
 }
 
+#[cfg(feature = "client")]
+impl<T> From<Request<T>> for UrlRequestParams
+where
+    T: Into<Body>,
+{
+    fn from(request: Request<T>) -> Self {
+        let (parts, body) = request.into_parts();
+        let Parts {
+            method, headers, ..
+        } = parts;
+
+        let request_parameters = UrlRequestParams::new();
+        request_parameters.set_method(method.as_str());
+
+        for (name, value) in &headers {
+            let header = HttpHeader::new();
+            header.set_name(name.as_str());
+            header.set_value(value.to_str().unwrap());
+            request_parameters.add_header(header);
+        }
+
+        let body: Body = body.into();
+        if body.len().unwrap_or(0) > 0 {
+            let body_handler = BodyUploadDataProvider::new(body, None); // TODO: support rewind
+            let upload_data_provider = UploadDataProvider::new(body_handler);
+            request_parameters.set_upload_data_provider(upload_data_provider);
+        }
+
+        request_parameters
+    }
+}
+
 /// Enum representing the request priority for [crate::UrlRequest] parameters.
 #[derive(Debug, PartialEq)]
 pub enum RequestPriority {
@@ -343,7 +380,7 @@ mod tests {
 
         fn read(&self, _: UploadDataProvider, _: UploadDataSink, _: Buffer) {}
 
-        fn rewind(&self, _: UploadDataProvider, sink: UploadDataSink) {
+        fn rewind(&mut self, _: UploadDataProvider, sink: UploadDataSink) {
             sink.on_rewind_succeeded();
         }
 
@@ -374,7 +411,7 @@ mod tests {
         let upload_data_provider = UploadDataProvider::new(TestUploadDataProviderHandler);
         url_request_params.set_upload_data_provider(upload_data_provider);
         assert_eq!(url_request_params.upload_data_provider().length(), 10);
-        url_request_params.set_upload_data_executor(Executor::new(|_, _| {}));
+        url_request_params.set_upload_data_executor(&Executor::new(|_, _| {}));
         assert_eq!(
             url_request_params.upload_data_executor().ptr.is_null(),
             false

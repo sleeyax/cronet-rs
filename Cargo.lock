@@ -118,6 +118,7 @@ name = "cronet-rs"
 version = "0.0.1"
 dependencies = [
  "bindgen",
+ "bytes",
  "http",
  "once_cell",
 ]

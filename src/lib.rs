@@ -35,7 +35,6 @@ mod url_response_info;
 pub use annotation::*;
 pub use buffer::*;
 pub use buffer_callback::*;
-pub use client::*;
 pub use date_time::*;
 pub use destroy::*;
 pub use engine::*;
