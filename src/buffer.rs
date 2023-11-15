@@ -57,9 +57,13 @@ impl Buffer {
 
     pub fn data<T>(&self) -> Box<T> {
         unsafe {
-            let dataPtr: Cronet_RawDataPtr = Cronet_Buffer_GetData(self.ptr);
+            let dataPtr: Cronet_RawDataPtr = self.data_ptr();
             Box::from_raw(dataPtr as *mut T)
         }
+    }
+
+    pub(crate) fn data_ptr(&self) -> Cronet_RawDataPtr {
+        unsafe { Cronet_Buffer_GetData(self.ptr) }
     }
 }
 
