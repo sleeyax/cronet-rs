@@ -44,8 +44,8 @@ unsafe extern "C" fn cronetUploadDataProviderRewind(
     self_ptr: Cronet_UploadDataProviderPtr,
     upload_data_sink_ptr: Cronet_UploadDataSinkPtr,
 ) {
-    let lockedMap = UPLOAD_DATA_PROVIDER_CALLBACKS.map().lock().unwrap();
-    let callback = lockedMap.get(&self_ptr).unwrap();
+    let mut lockedMap = UPLOAD_DATA_PROVIDER_CALLBACKS.map().lock().unwrap();
+    let callback = lockedMap.get_mut(&self_ptr).unwrap();
     callback.rewind(
         UploadDataProvider { ptr: self_ptr },
         UploadDataSink {
@@ -155,7 +155,7 @@ pub trait UploadDataProviderHandler {
     /// Arguments:
     ///
     /// * `sink`: The object to notify when the rewind operation has completed, successfully or otherwise.
-    fn rewind(&self, upload_data_provider: UploadDataProvider, sink: UploadDataSink);
+    fn rewind(&mut self, upload_data_provider: UploadDataProvider, sink: UploadDataSink);
 
     /// Called when this [UploadDataProvider] is no longer needed by a request, so that resources (like a file) can be explicitly released.
     fn close(&self, upload_data_provider: UploadDataProvider);
@@ -180,7 +180,7 @@ mod tests {
             sink.on_read_succeeded(size, true);
         }
 
-        fn rewind(&self, _: UploadDataProvider, sink: UploadDataSink) {
+        fn rewind(&mut self, _: UploadDataProvider, sink: UploadDataSink) {
             sink.on_rewind_succeeded();
         }
 
