@@ -65,6 +65,31 @@ impl Buffer {
     pub(crate) fn data_ptr(&self) -> Cronet_RawDataPtr {
         unsafe { Cronet_Buffer_GetData(self.ptr) }
     }
+
+    /// Write arbitrary data to the buffer.
+    /// The buffer MUST be initialized with a data pointer and size (see `init_data_and_callback`).
+    /// This method normally isn't exposed by Cronet itself but is added here for convenience.
+    ///
+    /// Arguments:
+    ///
+    /// * `data` - The data to write to the buffer.
+    /// * `data_size` - The size of the data to write to the buffer. Must be less than or equal to the buffer's size.
+    pub fn write<T>(&self, data: Box<T>, data_size: u64) -> Result<(), &'static str> {
+        let src = Box::into_raw(data);
+        let src_size = data_size;
+        let dst = self.data_ptr() as *mut T;
+        let dst_size = self.size();
+
+        if dst_size < src_size {
+            return Err("Buffer is too small to hold the specified data");
+        }
+
+        unsafe {
+            std::ptr::swap(src, dst);
+        }
+
+        Ok(())
+    }
 }
 
 impl Destroy for Buffer {
@@ -127,6 +152,23 @@ mod tests {
         );
         assert_eq!(buffer.size(), data.len() as u64);
         assert_eq!(*buffer.data::<String>(), data);
+        buffer.destroy();
+    }
+
+    #[test]
+    fn it_writes_data_to_buffer() {
+        let expected: [u8; 5] = [1, 2, 3, 4, 5];
+        let buffer = super::Buffer::new();
+        buffer.init_data_and_callback(
+            Box::new([0u8; 5]),
+            expected.len() as u64,
+            crate::BufferCallback::new(|_, _| {}),
+        );
+        assert_eq!(buffer.size(), expected.len() as u64);
+        let result = buffer.write(Box::new(expected), expected.len() as u64);
+        assert!(result.is_ok());
+        let actual = *buffer.data::<[u8; 5]>();
+        assert_eq!(actual, expected);
         buffer.destroy();
     }
 }
