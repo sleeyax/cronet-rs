@@ -35,7 +35,6 @@ impl<'a> UploadDataProviderHandler for BodyUploadDataProvider<'a> {
                 }
                 Err(err) => {
                     sink.on_read_error(err);
-                    return;
                 }
             }
         } else {
