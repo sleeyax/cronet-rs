@@ -1,7 +1,7 @@
 // This implementation is inspired by: https://github.com/seanmonstar/reqwest/blob/6792f697fcdb27c47dcbf7bd05f23368d1d4ac80/src/blocking/body.rs
 // License: https://github.com/seanmonstar/reqwest/blob/master/LICENSE-MIT
 
-use bytes::Bytes;
+use bytes::{Bytes, BytesMut};
 use std::fmt;
 use std::fs::File;
 use std::io::Read;
@@ -30,6 +30,18 @@ impl Body {
         match self.kind {
             Kind::Reader(_, _) => None,
             Kind::Bytes(ref bytes) => Some(bytes.as_ref()),
+            Kind::BytesMut(ref bytes) => Some(bytes.as_ref()),
+        }
+    }
+
+    /// Returns the body as a mutable byte slice.
+    /// Useful to build the body of a HTTP response.
+    /// For HTTP requests this method returns `None`.
+    pub fn as_bytes_mut(&mut self) -> Option<&mut BytesMut> {
+        match self.kind {
+            Kind::Reader(_, _) => None,
+            Kind::Bytes(_) => None,
+            Kind::BytesMut(ref mut bytes) => Some(bytes),
         }
     }
 
@@ -37,6 +49,7 @@ impl Body {
         match self.kind {
             Kind::Reader(_, len) => len,
             Kind::Bytes(ref bytes) => Some(bytes.len() as u64),
+            Kind::BytesMut(ref bytes) => Some(bytes.len() as u64),
         }
     }
 
@@ -49,6 +62,7 @@ impl Body {
 enum Kind {
     Reader(Box<dyn Read + Send>, Option<u64>),
     Bytes(Bytes),
+    BytesMut(BytesMut),
 }
 
 impl Kind {
@@ -56,6 +70,15 @@ impl Kind {
         match self {
             Kind::Reader(..) => None,
             Kind::Bytes(v) => Some(Kind::Bytes(v.clone())),
+            Kind::BytesMut(v) => Some(Kind::BytesMut(v.clone())),
+        }
+    }
+}
+
+impl Default for Body {
+    fn default() -> Body {
+        Body {
+            kind: Kind::BytesMut(BytesMut::new()),
         }
     }
 }
@@ -118,6 +141,7 @@ impl fmt::Debug for Kind {
                 .field("length", &DebugLength(v))
                 .finish(),
             Kind::Bytes(ref v) => fmt::Debug::fmt(v, f),
+            Kind::BytesMut(ref v) => fmt::Debug::fmt(v, f),
         }
     }
 }
