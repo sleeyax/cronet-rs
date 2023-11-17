@@ -1,5 +1,3 @@
-use std::ptr;
-
 use crate::{Buffer, Destroy, UploadDataProvider, UploadDataProviderHandler, UploadDataSink};
 
 use super::Body;
@@ -24,14 +22,24 @@ impl<'a> UploadDataProviderHandler for BodyUploadDataProvider<'a> {
 
     fn read(&self, _: UploadDataProvider, sink: UploadDataSink, buffer: Buffer) {
         if let Some(bytes) = self.body.as_bytes() {
-            let ptr = buffer.data_ptr();
-            let len = buffer.size();
-            unsafe {
-                ptr::copy_nonoverlapping(bytes.as_ptr(), ptr as *mut u8, len as usize);
+            let len = bytes.len() as u64;
+
+            if len == 0 {
+                sink.on_read_error("Empty body");
+                return;
             }
-            sink.on_read_succeeded(len, true); // TODO: implement chunked reads
+
+            match buffer.write(Box::new(bytes), len) {
+                Ok(_) => {
+                    sink.on_read_succeeded(len, true); // TODO: implement chunked reads
+                }
+                Err(err) => {
+                    sink.on_read_error(err);
+                    return;
+                }
+            }
         } else {
-            sink.on_read_error("Empty body");
+            sink.on_read_error("Invalid body");
         }
     }
 
@@ -52,5 +60,51 @@ impl<'a> UploadDataProviderHandler for BodyUploadDataProvider<'a> {
 impl<'a> BodyUploadDataProvider<'a> {
     pub fn new(body: Body, rewind: Option<&'a RewindFn>) -> Self {
         Self { body, rewind }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use bytes::Bytes;
+
+    use crate::{
+        client::Body, Buffer, Destroy, UploadDataProvider, UploadDataProviderHandler,
+        UploadDataSink, UploadDataSinkCallbacks,
+    };
+
+    use super::BodyUploadDataProvider;
+
+    #[test]
+    fn test_body_upload_data_provider() {
+        let expected = "test";
+
+        let handler = BodyUploadDataProvider::new(Body::from(expected), None);
+        let provider_dummy =
+            UploadDataProvider::new(BodyUploadDataProvider::new(Body::from(""), None));
+        let sink = UploadDataSink::new(UploadDataSinkCallbacks {
+            on_read_succeeded: |_, _, _| {},
+            on_read_error: |_, _| {},
+            on_rewind_succeeded: |_| {},
+            on_rewind_error: |_, _| {},
+        });
+
+        let buffer = Buffer::new();
+        buffer.init_data_and_callback(
+            Box::new(Bytes::new()),
+            expected.len() as u64,
+            crate::BufferCallback::new(|_, _| {}),
+        );
+
+        let ptr = buffer.ptr;
+
+        handler.read(provider_dummy, sink, buffer);
+
+        // Read the modified buffer again by its pointer.
+        let buffer = Buffer { ptr };
+        let actual = buffer.data::<&[u8]>();
+        assert_eq!(actual.len(), expected.len());
+        assert_eq!(*actual, expected.as_bytes());
+
+        buffer.destroy();
     }
 }
