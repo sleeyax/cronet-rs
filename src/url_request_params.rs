@@ -53,12 +53,12 @@ impl UrlRequestParams {
         }
     }
 
-    pub fn method(&self) -> String {
+    pub fn method(&self) -> &str {
         unsafe {
             let c_str = Cronet_UrlRequestParams_http_method_get(self.ptr);
             let c_str = CStr::from_ptr(c_str);
             let str_slice = c_str.to_str().unwrap();
-            str_slice.to_owned()
+            str_slice
         }
     }
 

@@ -28,10 +28,10 @@ impl QuicHint {
         }
     }
 
-    pub fn host(&self) -> String {
+    pub fn host(&self) -> &str {
         unsafe {
             let c_str = Cronet_QuicHint_host_get(self.ptr);
-            let host = CStr::from_ptr(c_str).to_string_lossy().into_owned();
+            let host = CStr::from_ptr(c_str).to_str().unwrap();
             host
         }
     }

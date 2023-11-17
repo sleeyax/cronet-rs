@@ -1,5 +1,7 @@
 use std::ffi::{CStr, CString};
 
+use http::{HeaderValue, Response, StatusCode, Version};
+
 use crate::{
     Cronet_UrlResponseInfoPtr, Cronet_UrlResponseInfo_Create, Cronet_UrlResponseInfo_Destroy,
     Cronet_UrlResponseInfo_all_headers_list_add, Cronet_UrlResponseInfo_all_headers_list_at,
@@ -31,11 +33,11 @@ impl UrlResponseInfo {
 
     /// The URL the response is for.
     /// This is the URL after following redirects, so it may not be the originally requested URL
-    pub fn url(&self) -> String {
+    pub fn url(&self) -> &str {
         unsafe {
             let url = Cronet_UrlResponseInfo_url_get(self.ptr);
             let url = CStr::from_ptr(url);
-            url.to_string_lossy().into_owned()
+            url.to_str().unwrap()
         }
     }
 
@@ -54,11 +56,11 @@ impl UrlResponseInfo {
 
     /// The URL at the given index in the chain.
     /// The first entry is the originally requested URL; the following entries are redirects followed.
-    pub fn url_chain_at(&self, index: u32) -> String {
+    pub fn url_chain_at(&self, index: u32) -> &str {
         unsafe {
             let url = Cronet_UrlResponseInfo_url_chain_at(self.ptr, index);
             let url = CStr::from_ptr(url);
-            url.to_string_lossy().into_owned()
+            url.to_str().unwrap()
         }
     }
 
@@ -91,11 +93,11 @@ impl UrlResponseInfo {
 
     /// The HTTP status text of the status line.
     /// For example, if the request received a "HTTP/1.1 200 OK" response, this method returns "OK".
-    pub fn status_text(&self) -> String {
+    pub fn status_text(&self) -> &str {
         unsafe {
             let text = Cronet_UrlResponseInfo_http_status_text_get(self.ptr);
             let text = CStr::from_ptr(text);
-            text.to_string_lossy().into_owned()
+            text.to_str().unwrap()
         }
     }
 
@@ -146,11 +148,12 @@ impl UrlResponseInfo {
     /// The protocol (for example 'quic/1+spdy/3') negotiated with the server.
     /// An empty string if no protocol was negotiated, the protocol is
     /// not known, or when using plain HTTP or HTTPS.
-    pub fn negotiated_protocol(&self) -> String {
+    pub fn negotiated_protocol(&self) -> &'static str {
         unsafe {
             let protocol = Cronet_UrlResponseInfo_negotiated_protocol_get(self.ptr);
             let protocol = CStr::from_ptr(protocol);
-            protocol.to_string_lossy().into_owned()
+            let protocol = protocol.to_str().unwrap();
+            protocol
         }
     }
 
@@ -162,11 +165,11 @@ impl UrlResponseInfo {
     }
 
     /// The proxy server that was used for the request.
-    pub fn proxy_server(&self) -> String {
+    pub fn proxy_server(&self) -> &'static str {
         unsafe {
             let server = Cronet_UrlResponseInfo_proxy_server_get(self.ptr);
-            let server = CStr::from_ptr(server);
-            server.to_string_lossy().into_owned()
+            let server = CStr::from_ptr(server).to_str().unwrap();
+            server
         }
     }
 
