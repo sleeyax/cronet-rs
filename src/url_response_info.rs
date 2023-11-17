@@ -200,6 +200,45 @@ impl Destroy for UrlResponseInfo {
     }
 }
 
+#[cfg(feature = "client")]
+impl<T> Into<Response<T>> for UrlResponseInfo
+where
+    T: Default,
+{
+    fn into(self) -> Response<T> {
+        let mut response = Response::default();
+
+        // Set HTTP version
+        let version = match self.negotiated_protocol() {
+            "http/0.9" => Version::HTTP_09,
+            "http/1.0" => Version::HTTP_10,
+            "http/1.1" => Version::HTTP_11,
+            "h2" => Version::HTTP_2,
+            "h3" => Version::HTTP_3,
+            "" => Version::HTTP_11,
+            version => panic!("Server responded with unknown HTTP version '{}'", version),
+        };
+        *response.version_mut() = version;
+
+        // Set status code
+        let status_code = self.status_code();
+        *response.status_mut() = StatusCode::from_u16(status_code as u16).unwrap();
+
+        // Set headers
+        let header_size = self.header_size();
+        for i in 0..header_size {
+            let header = self.header_at(i);
+            let name = header.name();
+            let value = header.value();
+            response
+                .headers_mut()
+                .insert(name, HeaderValue::from_static(value));
+        }
+
+        response
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::Destroy;

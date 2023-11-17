@@ -29,15 +29,15 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug example 'buffer'",
+            "name": "Debug example 'blocking'",
             "cargo": {
                 "args": [
                     "build",
-                    "--example=buffer",
+                    "--example=blocking",
                     "--package=cronet-rs"
                 ],
                 "filter": {
-                    "name": "buffer",
+                    "name": "blocking",
                     "kind": "example"
                 }
             },

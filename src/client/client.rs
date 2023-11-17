@@ -1,10 +1,10 @@
-use std::thread;
+use std::{sync::mpsc, thread};
 
-use crate::{Destroy, Engine, EngineParams, Executor, UrlRequestParams};
+use crate::{
+    Destroy, Engine, EngineParams, Executor, UrlRequest, UrlRequestCallback, UrlRequestParams,
+};
 
-use super::Body;
-
-type ShouldRedirectFn = fn(new_location_url: &str) -> bool;
+use super::{Body, ResponseHandler, ShouldRedirectFn, Status};
 
 pub struct Client {
     pub should_redirect: ShouldRedirectFn,
@@ -51,12 +51,31 @@ impl Client {
         self.should_redirect = should_redirect;
     }
 
-    pub fn send<T>(&self, request: http::Request<Body>) -> http::Result<http::Response<Body>> {
+    pub fn send(&self, request: http::Request<Body>) -> http::Result<http::Response<Body>> {
+        let uri = request.uri().to_string();
+
         let request_parameters = UrlRequestParams::from(request);
         request_parameters.set_upload_data_executor(&self.executor);
 
-        // TODO: implement response handler
+        // TODO: fix and complete example; it's currently stuck somewhere during the request
+        let (tx, rx) = mpsc::channel::<(http::Response<Body>, Status)>();
+        let response_handler = ResponseHandler::new(self.should_redirect, tx);
+        let callback = UrlRequestCallback::new(response_handler);
+        let url_request = UrlRequest::new();
+        url_request.init_with_params(
+            &self.engine,
+            uri.as_str(),
+            &request_parameters,
+            &callback,
+            &self.executor,
+        );
+        // request_parameters.destroy();
+        let result = url_request.start();
+        println!("result: {:?}", result);
 
-        http::Result::Ok(http::Response::new(Body::from("")))
+        let (response, status) = rx.recv().unwrap();
+        println!("status: {:?}", status);
+
+        http::Result::Ok(response)
     }
 }

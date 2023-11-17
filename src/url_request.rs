@@ -36,11 +36,11 @@ impl UrlRequest {
     /// * `executor` - Executor on which all callbacks will be invoked.
     pub fn init_with_params(
         &self,
-        engine: Engine,
+        engine: &Engine,
         url: &str,
-        params: UrlRequestParams,
-        callback: UrlRequestCallback,
-        executor: Executor,
+        params: &UrlRequestParams,
+        callback: &UrlRequestCallback,
+        executor: &Executor,
     ) -> EngineResult {
         unsafe {
             let c_str = CString::new(url).unwrap();
