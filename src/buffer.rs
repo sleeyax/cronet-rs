@@ -83,7 +83,8 @@ impl Buffer {
     ///
     /// * `data` - The data to write to the buffer.
     /// * `data_size` - The size of the data to write to the buffer. Must be less than or equal to the buffer's size.
-    pub fn write<T>(&self, data: Box<T>, data_size: u64) -> Result<(), &'static str> {
+    #[allow(dead_code)]
+    pub(crate) fn write<T>(&self, data: Box<T>, data_size: u64) -> Result<(), &'static str> {
         let src = Box::into_raw(data);
         let src_size = data_size;
         let dst = self.data_ptr() as *mut T;
@@ -95,6 +96,23 @@ impl Buffer {
 
         unsafe {
             std::ptr::swap(src, dst);
+        }
+
+        Ok(())
+    }
+
+    pub(crate) fn write_slice<T>(&self, data: &[T], data_size: u64) -> Result<(), &'static str> {
+        let src = data.as_ptr();
+        let src_size = data_size;
+        let dst = self.data_ptr() as *mut T;
+        let dst_size = self.size();
+
+        if dst_size < src_size {
+            return Err("Buffer is too small to hold the specified data");
+        }
+
+        unsafe {
+            std::ptr::copy_nonoverlapping(src, dst, src_size as usize);
         }
 
         Ok(())

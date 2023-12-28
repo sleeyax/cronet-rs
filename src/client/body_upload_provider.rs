@@ -29,9 +29,9 @@ impl<'a> UploadDataProviderHandler for BodyUploadDataProvider<'a> {
                 return;
             }
 
-            match buffer.write(Box::new(bytes), len) {
+            match buffer.write_slice(bytes, len) {
                 Ok(_) => {
-                    sink.on_read_succeeded(len, true); // TODO: implement chunked reads
+                    sink.on_read_succeeded(len, false); // TODO: implement chunked reads
                 }
                 Err(err) => {
                     sink.on_read_error(err);
