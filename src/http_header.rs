@@ -58,6 +58,12 @@ impl Destroy for HttpHeader {
     }
 }
 
+impl Default for HttpHeader {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::Destroy;

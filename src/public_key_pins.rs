@@ -111,6 +111,12 @@ impl Destroy for PublicKeyPins {
     }
 }
 
+impl Default for PublicKeyPins {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::time::UNIX_EPOCH;

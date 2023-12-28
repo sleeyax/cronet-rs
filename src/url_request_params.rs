@@ -270,6 +270,12 @@ impl Destroy for UrlRequestParams {
     }
 }
 
+impl Default for UrlRequestParams {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(feature = "client")]
 impl<T> From<Request<T>> for UrlRequestParams
 where

@@ -87,6 +87,12 @@ impl Destroy for RequestFinishedInfo {
     }
 }
 
+impl Default for RequestFinishedInfo {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /// Enum representing the reason why the request finished.
 #[derive(Debug, PartialEq)]
 pub enum RequestFinishedInfoReason {

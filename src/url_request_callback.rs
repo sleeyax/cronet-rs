@@ -11,7 +11,7 @@ use crate::{
 
 static mut URL_REQUEST_CALLBACK_CALLBACKS: Lazy<
     CronetCallbacks<Cronet_UrlRequestCallbackPtr, Box<dyn UrlRequestCallbackHandler>>,
-> = Lazy::new(|| CronetCallbacks::new());
+> = Lazy::new(CronetCallbacks::new);
 
 #[no_mangle]
 unsafe extern "C" fn cronetUrlRequestCallbackOnRedirectReceived(

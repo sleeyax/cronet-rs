@@ -6,7 +6,7 @@ use crate::{
 };
 
 static mut RUNNABLE_CALLBACKS: Lazy<CronetCallbacks<Cronet_RunnablePtr, RunnableRunFn>> =
-    Lazy::new(|| CronetCallbacks::new());
+    Lazy::new(CronetCallbacks::new);
 
 #[no_mangle]
 unsafe extern "C" fn cronetRunnableOnRun(selfPtr: Cronet_RunnablePtr) {

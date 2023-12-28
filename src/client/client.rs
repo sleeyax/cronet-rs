@@ -84,3 +84,9 @@ impl Client {
         }
     }
 }
+
+impl Default for Client {
+    fn default() -> Self {
+        Self::new()
+    }
+}

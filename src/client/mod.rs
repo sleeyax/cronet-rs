@@ -1,5 +1,6 @@
 mod body;
 mod body_upload_provider;
+#[allow(clippy::module_inception)]
 mod client;
 mod error;
 mod response_handler;

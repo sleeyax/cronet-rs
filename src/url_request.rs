@@ -134,3 +134,9 @@ impl Destroy for UrlRequest {
         }
     }
 }
+
+impl Default for UrlRequest {
+    fn default() -> Self {
+        Self::new()
+    }
+}

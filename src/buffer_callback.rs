@@ -6,7 +6,7 @@ use crate::{
 };
 
 static mut BUFFER_CALLBACKS: Lazy<CronetCallbacks<Cronet_BufferCallbackPtr, BufferCallbackFn>> =
-    Lazy::new(|| CronetCallbacks::new());
+    Lazy::new(CronetCallbacks::new);
 
 #[no_mangle]
 unsafe extern "C" fn cronetBufferCallbackOnDestroy(

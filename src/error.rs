@@ -116,6 +116,12 @@ impl Destroy for CronetError {
     }
 }
 
+impl Default for CronetError {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl fmt::Display for CronetError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(

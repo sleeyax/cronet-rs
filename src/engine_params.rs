@@ -273,6 +273,12 @@ impl Destroy for EngineParams {
     }
 }
 
+impl Default for EngineParams {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub enum HttpCacheMode {
     /// Disable HTTP cache.

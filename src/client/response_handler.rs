@@ -102,7 +102,7 @@ impl UrlRequestCallbackHandler for ResponseHandler {
 
     fn on_succeeded(&mut self, _: UrlRequestCallback, req: UrlRequest, _: UrlResponseInfo) {
         req.destroy();
-        let response = mem::replace(&mut self.response, Response::default());
+        let response = mem::take(&mut self.response);
         self.tx.send(Status::Success(response)).unwrap();
     }
 

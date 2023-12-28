@@ -65,6 +65,12 @@ impl Destroy for QuicHint {
     }
 }
 
+impl Default for QuicHint {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::Destroy;

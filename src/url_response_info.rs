@@ -109,10 +109,7 @@ impl UrlResponseInfo {
     }
 
     pub fn header_size(&self) -> u32 {
-        unsafe {
-            let size = Cronet_UrlResponseInfo_all_headers_list_size(self.ptr);
-            size
-        }
+        unsafe { Cronet_UrlResponseInfo_all_headers_list_size(self.ptr) }
     }
 
     pub fn header_at(&self, index: u32) -> HttpHeader {
@@ -200,7 +197,14 @@ impl Destroy for UrlResponseInfo {
     }
 }
 
+impl Default for UrlResponseInfo {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(feature = "client")]
+#[allow(clippy::from_over_into)]
 impl<T> Into<Response<T>> for UrlResponseInfo
 where
     T: Default,

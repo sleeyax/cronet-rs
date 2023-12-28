@@ -8,7 +8,7 @@ use crate::{
 
 static mut URL_REQUEST_STATUS_LISTENER_CALLBACKS: Lazy<
     CronetCallbacks<Cronet_UrlRequestStatusListenerPtr, UrlRequestStatusListenerOnStatusFn>,
-> = Lazy::new(|| CronetCallbacks::new());
+> = Lazy::new(CronetCallbacks::new);
 
 #[no_mangle]
 unsafe extern "C" fn cronetUrlRequestStatusListenerOnStatus(
@@ -50,6 +50,12 @@ impl Destroy for UrlRequestStatusListener {
             lockedMap.remove(&self.ptr);
             Cronet_UrlRequestStatusListener_Destroy(self.ptr);
         }
+    }
+}
+
+impl Default for UrlRequestStatusListener {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

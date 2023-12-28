@@ -11,7 +11,7 @@ use crate::{
 
 static mut UPLOAD_DATA_SINK_CALLBACKS: Lazy<
     CronetCallbacks<Cronet_UploadDataSinkPtr, UploadDataSinkCallbacks>,
-> = Lazy::new(|| CronetCallbacks::new());
+> = Lazy::new(CronetCallbacks::new);
 
 #[no_mangle]
 unsafe extern "C" fn cronetUploadDataSinkOnReadSucceeded(
