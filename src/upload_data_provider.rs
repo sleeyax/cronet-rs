@@ -177,7 +177,7 @@ mod tests {
 
         fn read(&self, _: UploadDataProvider, sink: UploadDataSink, buffer: Buffer) {
             let size = buffer.size();
-            sink.on_read_succeeded(size, true);
+            sink.on_read_succeeded(size, false);
         }
 
         fn rewind(&mut self, _: UploadDataProvider, sink: UploadDataSink) {
