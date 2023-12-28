@@ -1,12 +1,14 @@
 use core::fmt;
 
-use crate::CronetError;
+use crate::{CronetError, EngineResult};
 
 pub enum ClientError {
     /// Internal cronet error.
     CronetError(CronetError),
     /// The request was cancelled.
     CancellationError,
+    /// Unexpected cronet engine result.
+    EngineError(EngineResult),
 }
 
 impl From<CronetError> for ClientError {
@@ -20,6 +22,7 @@ impl fmt::Display for ClientError {
         match self {
             Self::CronetError(error) => write!(f, "{}", error),
             Self::CancellationError => write!(f, "Request was cancelled"),
+            Self::EngineError(error) => write!(f, "Unexpected engine result: {:?}", error),
         }
     }
 }
@@ -29,6 +32,7 @@ impl fmt::Debug for ClientError {
         match self {
             Self::CronetError(error) => write!(f, "{:?}", error),
             Self::CancellationError => write!(f, "Request was cancelled"),
+            Self::EngineError(error) => write!(f, "Unexpected engine result: {:?}", error),
         }
     }
 }

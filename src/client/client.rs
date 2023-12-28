@@ -1,8 +1,8 @@
 use std::{sync::mpsc, thread};
 
 use crate::{
-    client::ClientError, Destroy, Engine, EngineParams, Executor, UrlRequest, UrlRequestCallback,
-    UrlRequestParams,
+    client::ClientError, Destroy, Engine, EngineParams, EngineResult, Executor, UrlRequest,
+    UrlRequestCallback, UrlRequestParams,
 };
 
 use super::{Body, ResponseHandler, ShouldRedirectFn, Status};
@@ -71,6 +71,9 @@ impl Client {
         );
         // request_parameters.destroy();
         let result = url_request.start();
+        if result != EngineResult::Success {
+            return Result::Err(ClientError::EngineError(result));
+        }
 
         let status = rx.recv().unwrap();
 
