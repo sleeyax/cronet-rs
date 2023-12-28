@@ -100,9 +100,9 @@ mod tests {
 
         // Read the modified buffer again by its pointer.
         let buffer = Buffer { ptr };
-        let actual = buffer.data::<&[u8]>();
+        let actual = buffer.data_slice::<u8>(4);
         assert_eq!(actual.len(), expected.len());
-        assert_eq!(*actual, expected.as_bytes());
+        assert_eq!(actual, expected.as_bytes());
 
         buffer.destroy();
     }
