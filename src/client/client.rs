@@ -1,7 +1,8 @@
 use std::{sync::mpsc, thread};
 
 use crate::{
-    Destroy, Engine, EngineParams, Executor, UrlRequest, UrlRequestCallback, UrlRequestParams,
+    client::ClientError, Destroy, Engine, EngineParams, Executor, UrlRequest, UrlRequestCallback,
+    UrlRequestParams,
 };
 
 use super::{Body, ResponseHandler, ShouldRedirectFn, Status};
@@ -51,14 +52,13 @@ impl Client {
         self.should_redirect = should_redirect;
     }
 
-    pub fn send(&self, request: http::Request<Body>) -> http::Result<http::Response<Body>> {
+    pub fn send(&self, request: http::Request<Body>) -> Result<http::Response<Body>, ClientError> {
         let uri = request.uri().to_string();
 
         let request_parameters = UrlRequestParams::from(request);
         request_parameters.set_upload_data_executor(&self.executor);
 
-        // TODO: fix and complete example; it's currently stuck somewhere during the request
-        let (tx, rx) = mpsc::channel::<(http::Response<Body>, Status)>();
+        let (tx, rx) = mpsc::channel::<Status>();
         let response_handler = ResponseHandler::new(self.should_redirect, tx);
         let callback = UrlRequestCallback::new(response_handler);
         let url_request = UrlRequest::new();
@@ -71,11 +71,13 @@ impl Client {
         );
         // request_parameters.destroy();
         let result = url_request.start();
-        println!("result: {:?}", result);
 
-        let (response, status) = rx.recv().unwrap();
-        println!("status: {:?}", status);
+        let status = rx.recv().unwrap();
 
-        http::Result::Ok(response)
+        match status {
+            Status::Success(res) => Result::Ok(res),
+            Status::Canceled => Result::Err(ClientError::CancellationError),
+            Status::Error(e) => Result::Err(ClientError::CronetError(e)),
+        }
     }
 }

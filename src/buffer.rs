@@ -1,3 +1,5 @@
+use std::slice;
+
 use crate::{
     BufferCallback, Cronet_BufferPtr, Cronet_Buffer_Create, Cronet_Buffer_Destroy,
     Cronet_Buffer_GetData, Cronet_Buffer_GetSize, Cronet_Buffer_InitWithAlloc,
@@ -55,6 +57,10 @@ impl Buffer {
         unsafe { Cronet_Buffer_GetSize(self.ptr) }
     }
 
+    pub(crate) fn data_ptr(&self) -> Cronet_RawDataPtr {
+        unsafe { Cronet_Buffer_GetData(self.ptr) }
+    }
+
     pub fn data<T>(&self) -> Box<T> {
         unsafe {
             let dataPtr: Cronet_RawDataPtr = self.data_ptr();
@@ -62,8 +68,11 @@ impl Buffer {
         }
     }
 
-    pub(crate) fn data_ptr(&self) -> Cronet_RawDataPtr {
-        unsafe { Cronet_Buffer_GetData(self.ptr) }
+    pub fn data_slice<T>(&self, size: usize) -> &[T] {
+        unsafe {
+            let slice = slice::from_raw_parts(self.data_ptr() as *mut T, size);
+            slice
+        }
     }
 
     /// Write arbitrary data to the buffer.
