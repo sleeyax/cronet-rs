@@ -31,6 +31,6 @@ fn print_result(result: Result<http::Response<Body>, cronet_rs::client::ClientEr
             let body = response.body().as_bytes().unwrap();
             println!("Body: {}", String::from_utf8_lossy(body));
         }
-        Err(error) => println!("Error: {:?}", error),
+        Err(error) => println!("Error: {}", error),
     }
 }

@@ -30,7 +30,7 @@ impl fmt::Display for ClientError {
 impl fmt::Debug for ClientError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::CronetError(error) => write!(f, "{:?}", error),
+            Self::CronetError(error) => write!(f, "{}", error),
             Self::CancellationError => write!(f, "Request was cancelled"),
             Self::EngineError(error) => write!(f, "Unexpected engine result: {:?}", error),
         }
