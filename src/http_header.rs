@@ -20,12 +20,10 @@ impl HttpHeader {
     }
 
     /// Get the name of this header.
-    pub fn name(&self) -> String {
+    pub fn name(&self) -> &'static str {
         unsafe {
             let c_name = Cronet_HttpHeader_name_get(self.ptr);
-            let name = std::ffi::CStr::from_ptr(c_name)
-                .to_string_lossy()
-                .into_owned();
+            let name = std::ffi::CStr::from_ptr(c_name).to_str().unwrap();
             name
         }
     }
@@ -38,10 +36,10 @@ impl HttpHeader {
         }
     }
 
-    pub fn value(&self) -> String {
+    pub fn value(&self) -> &'static str {
         unsafe {
             let c_value = Cronet_HttpHeader_value_get(self.ptr);
-            let value = CStr::from_ptr(c_value).to_string_lossy().into_owned();
+            let value = CStr::from_ptr(c_value).to_str().unwrap();
             value
         }
     }
@@ -57,6 +55,12 @@ impl HttpHeader {
 impl Destroy for HttpHeader {
     fn destroy(&self) {
         unsafe { Cronet_HttpHeader_Destroy(self.ptr) }
+    }
+}
+
+impl Default for HttpHeader {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

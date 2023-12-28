@@ -49,10 +49,10 @@ impl CronetError {
     }
 
     /// Get the error message.
-    pub fn message(&self) -> String {
+    pub fn message(&self) -> &str {
         unsafe {
             let c_message = Cronet_Error_message_get(self.ptr);
-            let message = CStr::from_ptr(c_message).to_string_lossy().into_owned();
+            let message = CStr::from_ptr(c_message).to_str().unwrap();
             message
         }
     }
@@ -113,6 +113,12 @@ impl Destroy for CronetError {
         unsafe {
             Cronet_Error_Destroy(self.ptr);
         }
+    }
+}
+
+impl Default for CronetError {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

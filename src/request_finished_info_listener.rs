@@ -10,7 +10,7 @@ use crate::{
 
 static mut REQUEST_FINISHED_INFO_LISTENER_CALLBACKS: Lazy<
     CronetCallbacks<Cronet_RequestFinishedInfoListenerPtr, OnRequestFinishedFn>,
-> = Lazy::new(|| CronetCallbacks::new());
+> = Lazy::new(CronetCallbacks::new);
 
 #[no_mangle]
 unsafe extern "C" fn cronetOnRequestFinished(
@@ -50,10 +50,9 @@ impl RequestFinishedInfoListener {
         }
     }
 
-    pub fn set_client_context(&self, raw_data: Cronet_RawDataPtr) {
-        unsafe {
-            Cronet_RequestFinishedInfoListener_SetClientContext(self.ptr, raw_data);
-        }
+    #[allow(clippy::missing_safety_doc)]
+    pub unsafe fn set_client_context(&self, raw_data: Cronet_RawDataPtr) {
+        Cronet_RequestFinishedInfoListener_SetClientContext(self.ptr, raw_data);
     }
 }
 
@@ -84,7 +83,9 @@ mod tests {
     #[test]
     fn it_sets_client_context() {
         let listener = super::RequestFinishedInfoListener::new(|_, _, _, _| {});
-        listener.set_client_context(std::ptr::null_mut());
+        unsafe {
+            listener.set_client_context(std::ptr::null_mut());
+        }
         listener.destroy();
     }
 }

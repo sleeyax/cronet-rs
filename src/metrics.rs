@@ -161,24 +161,15 @@ impl Metrics {
     }
 
     pub fn socket_reused(&self) -> bool {
-        unsafe {
-            let reused = Cronet_Metrics_socket_reused_get(self.ptr);
-            reused
-        }
+        unsafe { Cronet_Metrics_socket_reused_get(self.ptr) }
     }
 
     pub fn sent_byte_count(&self) -> i64 {
-        unsafe {
-            let count = Cronet_Metrics_sent_byte_count_get(self.ptr);
-            count
-        }
+        unsafe { Cronet_Metrics_sent_byte_count_get(self.ptr) }
     }
 
     pub fn received_byte_count(&self) -> i64 {
-        unsafe {
-            let count = Cronet_Metrics_received_byte_count_get(self.ptr);
-            count
-        }
+        unsafe { Cronet_Metrics_received_byte_count_get(self.ptr) }
     }
 
     pub fn set_request_start(&self, datetime: DateTime) {
@@ -281,6 +272,12 @@ impl Metrics {
 impl Destroy for Metrics {
     fn destroy(&self) {
         unsafe { Cronet_Metrics_Destroy(self.ptr) }
+    }
+}
+
+impl Default for Metrics {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

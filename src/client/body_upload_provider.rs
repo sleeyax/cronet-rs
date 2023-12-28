@@ -29,9 +29,9 @@ impl<'a> UploadDataProviderHandler for BodyUploadDataProvider<'a> {
                 return;
             }
 
-            match buffer.write(Box::new(bytes), len) {
+            match buffer.write_slice(bytes, len) {
                 Ok(_) => {
-                    sink.on_read_succeeded(len, true); // TODO: implement chunked reads
+                    sink.on_read_succeeded(len, false); // TODO: implement chunked reads
                 }
                 Err(err) => {
                     sink.on_read_error(err);
@@ -100,9 +100,9 @@ mod tests {
 
         // Read the modified buffer again by its pointer.
         let buffer = Buffer { ptr };
-        let actual = buffer.data::<&[u8]>();
+        let actual = buffer.data_slice::<u8>(4);
         assert_eq!(actual.len(), expected.len());
-        assert_eq!(*actual, expected.as_bytes());
+        assert_eq!(actual, expected.as_bytes());
 
         buffer.destroy();
     }

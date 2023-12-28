@@ -57,12 +57,12 @@ impl EngineParams {
     }
 
     /// Returns the `User-Agent` header value.
-    pub fn user_agent(&self) -> String {
+    pub fn user_agent(&self) -> &str {
         unsafe {
             let c_str = Cronet_EngineParams_user_agent_get(self.ptr);
             let c_str = CStr::from_ptr(c_str);
             let str_slice = c_str.to_str().unwrap();
-            str_slice.to_owned()
+            str_slice
         }
     }
 
@@ -75,12 +75,12 @@ impl EngineParams {
     }
 
     /// Returns the `Accept-Language` header value.
-    pub fn accept_language(&self) -> String {
+    pub fn accept_language(&self) -> &str {
         unsafe {
             let c_str = Cronet_EngineParams_accept_language_get(self.ptr);
             let c_str = CStr::from_ptr(c_str);
             let str_slice = c_str.to_str().unwrap();
-            str_slice.to_owned()
+            str_slice
         }
     }
 
@@ -94,12 +94,12 @@ impl EngineParams {
     }
 
     /// Returns the directory for HTTP Cache and Prefs Storage.
-    pub fn storage_path(&self) -> String {
+    pub fn storage_path(&self) -> &str {
         unsafe {
             let c_str = Cronet_EngineParams_storage_path_get(self.ptr);
             let c_str = CStr::from_ptr(c_str);
             let str_slice = c_str.to_str().unwrap();
-            str_slice.to_owned()
+            str_slice
         }
     }
 
@@ -257,12 +257,12 @@ impl EngineParams {
         }
     }
 
-    pub fn experimental_options(&self) -> String {
+    pub fn experimental_options(&self) -> &str {
         unsafe {
             let c_str = Cronet_EngineParams_experimental_options_get(self.ptr);
             let c_str = CStr::from_ptr(c_str);
             let str_slice = c_str.to_str().unwrap();
-            str_slice.to_owned()
+            str_slice
         }
     }
 }
@@ -270,6 +270,12 @@ impl EngineParams {
 impl Destroy for EngineParams {
     fn destroy(&self) {
         unsafe { Cronet_EngineParams_Destroy(self.ptr) }
+    }
+}
+
+impl Default for EngineParams {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

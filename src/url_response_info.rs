@@ -1,5 +1,7 @@
 use std::ffi::{CStr, CString};
 
+use http::{HeaderValue, Response, StatusCode, Version};
+
 use crate::{
     Cronet_UrlResponseInfoPtr, Cronet_UrlResponseInfo_Create, Cronet_UrlResponseInfo_Destroy,
     Cronet_UrlResponseInfo_all_headers_list_add, Cronet_UrlResponseInfo_all_headers_list_at,
@@ -31,11 +33,11 @@ impl UrlResponseInfo {
 
     /// The URL the response is for.
     /// This is the URL after following redirects, so it may not be the originally requested URL
-    pub fn url(&self) -> String {
+    pub fn url(&self) -> &str {
         unsafe {
             let url = Cronet_UrlResponseInfo_url_get(self.ptr);
             let url = CStr::from_ptr(url);
-            url.to_string_lossy().into_owned()
+            url.to_str().unwrap()
         }
     }
 
@@ -54,11 +56,11 @@ impl UrlResponseInfo {
 
     /// The URL at the given index in the chain.
     /// The first entry is the originally requested URL; the following entries are redirects followed.
-    pub fn url_chain_at(&self, index: u32) -> String {
+    pub fn url_chain_at(&self, index: u32) -> &str {
         unsafe {
             let url = Cronet_UrlResponseInfo_url_chain_at(self.ptr, index);
             let url = CStr::from_ptr(url);
-            url.to_string_lossy().into_owned()
+            url.to_str().unwrap()
         }
     }
 
@@ -91,11 +93,11 @@ impl UrlResponseInfo {
 
     /// The HTTP status text of the status line.
     /// For example, if the request received a "HTTP/1.1 200 OK" response, this method returns "OK".
-    pub fn status_text(&self) -> String {
+    pub fn status_text(&self) -> &str {
         unsafe {
             let text = Cronet_UrlResponseInfo_http_status_text_get(self.ptr);
             let text = CStr::from_ptr(text);
-            text.to_string_lossy().into_owned()
+            text.to_str().unwrap()
         }
     }
 
@@ -107,10 +109,7 @@ impl UrlResponseInfo {
     }
 
     pub fn header_size(&self) -> u32 {
-        unsafe {
-            let size = Cronet_UrlResponseInfo_all_headers_list_size(self.ptr);
-            size
-        }
+        unsafe { Cronet_UrlResponseInfo_all_headers_list_size(self.ptr) }
     }
 
     pub fn header_at(&self, index: u32) -> HttpHeader {
@@ -146,11 +145,12 @@ impl UrlResponseInfo {
     /// The protocol (for example 'quic/1+spdy/3') negotiated with the server.
     /// An empty string if no protocol was negotiated, the protocol is
     /// not known, or when using plain HTTP or HTTPS.
-    pub fn negotiated_protocol(&self) -> String {
+    pub fn negotiated_protocol(&self) -> &'static str {
         unsafe {
             let protocol = Cronet_UrlResponseInfo_negotiated_protocol_get(self.ptr);
             let protocol = CStr::from_ptr(protocol);
-            protocol.to_string_lossy().into_owned()
+            let protocol = protocol.to_str().unwrap();
+            protocol
         }
     }
 
@@ -162,11 +162,11 @@ impl UrlResponseInfo {
     }
 
     /// The proxy server that was used for the request.
-    pub fn proxy_server(&self) -> String {
+    pub fn proxy_server(&self) -> &'static str {
         unsafe {
             let server = Cronet_UrlResponseInfo_proxy_server_get(self.ptr);
-            let server = CStr::from_ptr(server);
-            server.to_string_lossy().into_owned()
+            let server = CStr::from_ptr(server).to_str().unwrap();
+            server
         }
     }
 
@@ -194,6 +194,52 @@ impl Destroy for UrlResponseInfo {
         unsafe {
             Cronet_UrlResponseInfo_Destroy(self.ptr);
         }
+    }
+}
+
+impl Default for UrlResponseInfo {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[cfg(feature = "client")]
+#[allow(clippy::from_over_into)]
+impl<T> Into<Response<T>> for UrlResponseInfo
+where
+    T: Default,
+{
+    fn into(self) -> Response<T> {
+        let mut response = Response::default();
+
+        // Set HTTP version
+        let version = match self.negotiated_protocol() {
+            "http/0.9" => Version::HTTP_09,
+            "http/1.0" => Version::HTTP_10,
+            "http/1.1" => Version::HTTP_11,
+            "h2" => Version::HTTP_2,
+            "h3" => Version::HTTP_3,
+            "" => Version::HTTP_11,
+            version => panic!("Server responded with unknown HTTP version '{}'", version),
+        };
+        *response.version_mut() = version;
+
+        // Set status code
+        let status_code = self.status_code();
+        *response.status_mut() = StatusCode::from_u16(status_code as u16).unwrap();
+
+        // Set headers
+        let header_size = self.header_size();
+        for i in 0..header_size {
+            let header = self.header_at(i);
+            let name = header.name();
+            let value = header.value();
+            response
+                .headers_mut()
+                .insert(name, HeaderValue::from_static(value));
+        }
+
+        response
     }
 }
 

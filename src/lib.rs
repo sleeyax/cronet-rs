@@ -8,7 +8,7 @@ mod annotation;
 mod buffer;
 mod buffer_callback;
 #[cfg(feature = "client")]
-mod client;
+pub mod client;
 mod date_time;
 mod destroy;
 mod engine;

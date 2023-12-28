@@ -6,7 +6,7 @@ use crate::{
 };
 
 static mut EXECUTOR_CALLBACKS: Lazy<CronetCallbacks<Cronet_ExecutorPtr, ExecutorExecuteFn>> =
-    Lazy::new(|| CronetCallbacks::new());
+    Lazy::new(CronetCallbacks::new);
 
 #[no_mangle]
 unsafe extern "C" fn cronetExecutorOnExecute(

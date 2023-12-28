@@ -48,6 +48,12 @@ impl Destroy for DateTime {
     }
 }
 
+impl Default for DateTime {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::time::UNIX_EPOCH;

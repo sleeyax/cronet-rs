@@ -11,7 +11,7 @@ use crate::{
 
 static mut UPLOAD_DATA_PROVIDER_CALLBACKS: Lazy<
     CronetCallbacks<Cronet_UploadDataProviderPtr, Box<dyn UploadDataProviderHandler>>,
-> = Lazy::new(|| CronetCallbacks::new());
+> = Lazy::new(CronetCallbacks::new);
 
 #[no_mangle]
 unsafe extern "C" fn cronetUploadDataProviderGetLength(
@@ -19,7 +19,7 @@ unsafe extern "C" fn cronetUploadDataProviderGetLength(
 ) -> i64 {
     let lockedMap = UPLOAD_DATA_PROVIDER_CALLBACKS.map().lock().unwrap();
     let callback = lockedMap.get(&selfPtr).unwrap();
-    return callback.length(UploadDataProvider { ptr: selfPtr });
+    callback.length(UploadDataProvider { ptr: selfPtr })
 }
 
 #[no_mangle]
@@ -105,8 +105,9 @@ impl UploadDataProvider {
         }
     }
 
-    pub fn set_client_context(&self, client_context: Cronet_ClientContext) {
-        unsafe { Cronet_UploadDataProvider_SetClientContext(self.ptr, client_context) }
+    #[allow(clippy::missing_safety_doc)]
+    pub unsafe fn set_client_context(&self, client_context: Cronet_ClientContext) {
+        Cronet_UploadDataProvider_SetClientContext(self.ptr, client_context)
     }
 
     pub fn client_context(&self) -> Cronet_ClientContext {
@@ -177,7 +178,7 @@ mod tests {
 
         fn read(&self, _: UploadDataProvider, sink: UploadDataSink, buffer: Buffer) {
             let size = buffer.size();
-            sink.on_read_succeeded(size, true);
+            sink.on_read_succeeded(size, false);
         }
 
         fn rewind(&mut self, _: UploadDataProvider, sink: UploadDataSink) {

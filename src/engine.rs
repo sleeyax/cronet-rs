@@ -75,21 +75,21 @@ impl Engine {
     }
 
     /// A human-readable version string of the engine.
-    pub fn version(&self) -> String {
+    pub fn version(&self) -> &str {
         unsafe {
             let version = Cronet_Engine_GetVersionString(self.ptr);
             let version = CStr::from_ptr(version);
-            version.to_string_lossy().into_owned()
+            version.to_str().unwrap()
         }
     }
 
     /// Returns the default value of the `User-Agent` header.
     /// Can be accessed before `StartWithParams()` is called.
-    pub fn default_user_agent(&self) -> String {
+    pub fn default_user_agent(&self) -> &str {
         unsafe {
             let version = Cronet_Engine_GetDefaultUserAgent(self.ptr);
             let version = CStr::from_ptr(version);
-            version.to_string_lossy().into_owned()
+            version.to_str().unwrap()
         }
     }
 
@@ -107,6 +107,12 @@ impl Destroy for Engine {
         unsafe {
             Cronet_Engine_Destroy(self.ptr);
         }
+    }
+}
+
+impl Default for Engine {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

@@ -33,10 +33,10 @@ impl PublicKeyPins {
         }
     }
 
-    pub fn host(&self) -> String {
+    pub fn host(&self) -> &str {
         unsafe {
             let c_str = Cronet_PublicKeyPins_host_get(self.ptr);
-            let host = CStr::from_ptr(c_str).to_string_lossy().into_owned();
+            let host = CStr::from_ptr(c_str).to_str().unwrap();
             host
         }
     }
@@ -58,10 +58,10 @@ impl PublicKeyPins {
         unsafe { Cronet_PublicKeyPins_pins_sha256_size(self.ptr) }
     }
 
-    pub fn at(&self, index: u32) -> String {
+    pub fn at(&self, index: u32) -> &str {
         unsafe {
             let c_str = Cronet_PublicKeyPins_pins_sha256_at(self.ptr, index);
-            CStr::from_ptr(c_str).to_string_lossy().into_owned()
+            CStr::from_ptr(c_str).to_str().unwrap()
         }
     }
 
@@ -108,6 +108,12 @@ impl PublicKeyPins {
 impl Destroy for PublicKeyPins {
     fn destroy(&self) {
         unsafe { Cronet_PublicKeyPins_Destroy(self.ptr) }
+    }
+}
+
+impl Default for PublicKeyPins {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
